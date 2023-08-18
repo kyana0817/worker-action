@@ -1,16 +1,17 @@
-import { isDedicatedWorkerScope } from "./types"
+import { isDedicatedWorkerScope } from './types'
 import { generateID } from './utils'
 import type {
   ClientMessage,
   ExposeFn,
-  WrapFn
-} from "./types"
+  WrapFn,
+} from './types'
+
 
 export const expose: ExposeFn = (actions, worker = globalThis) => {
   if (!(worker instanceof WorkerGlobalScope)) throw new Error('Warning: outside in worker scope')
 
   if (isDedicatedWorkerScope(worker)) {
-    worker.onmessage = async ({ data }: MessageEvent) => {
+    worker.onmessage = async ({ data }: MessageEvent<string>) => {
       const {
         id, type, args 
       }: ClientMessage<typeof actions> = JSON.parse(data)
@@ -30,12 +31,14 @@ export const wrap: WrapFn = (worker) => {
     exec(type, ...args) {
       const id = generateID()
       worker.postMessage(JSON.stringify({
-        id, type, args 
+        id, type, args
       }))
 
       return new Promise(resolve => {
-        worker.addEventListener('message', function callback({ data }: MessageEvent) {
-          const { id: reciveId, payload } = JSON.parse(data)
+        worker.addEventListener('message', function callback({ data }: MessageEvent<string>) {
+          const {
+            id: reciveId, payload 
+          } = JSON.parse(data)
           if (id !== reciveId) return
   
           worker.removeEventListener('message', callback)

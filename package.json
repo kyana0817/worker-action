@@ -16,7 +16,7 @@
     "format": "eslint --fix",
     "dev": "tsc --watch",
     "build:cjs": "tsc",
-    "build:esm": "tsc -m esNext --outDir esm",
+    "build:esm": "tsc -m esNext --outDir esm --verbatimModuleSyntax",
     "build": "pnpm build:cjs && pnpm build:esm"
   },
   "keywords": [],
